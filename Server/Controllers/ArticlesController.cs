@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using Server.DTO;
 using Server.Providers;
 using System.Linq;
@@ -6,26 +7,26 @@ using System.Linq;
 namespace Server.Controllers
 {
     [ApiController]
-    [Route("Posts")]
-    public class PostsController : Controller
+    [Route("Articles")]
+    public class ArticlesController : Controller
     {
-        private IPostsProvider postsProvider;
+        private IArticlesProvider articlesProvider;
 
-        public PostsController(IPostsProvider postsProvider)
+        public ArticlesController(IArticlesProvider articlesProvider)
         {
-            this.postsProvider = postsProvider;
+            this.articlesProvider = articlesProvider;
         }
 
         /// <summary>
-        /// Get a post
+        /// Get an article
         /// </summary>
-        /// <param name="PostName"></param>
+        /// <param name="ArticleName"></param>
         /// <returns>
         /// </returns>
         [HttpGet]
-        public IActionResult GetPost(string PostName)
+        public IActionResult GetArticle(string ArticleName)
         {
-            var response = postsProvider.GetPost(PostName);
+            var response = articlesProvider.GetArticle(ArticleName);
 
             if (response.Errors != null && response.Errors.Any())
             {
@@ -38,35 +39,34 @@ namespace Server.Controllers
         }
 
         /// <summary>
-        /// Posts a post
+        /// Posts an article
         /// </summary>
-        /// <param name="PostName"></param>
         /// <param name="Overwrite"></param>
-        /// <param name="PostFile"></param>
+        /// <param name="ArticleModel"></param>
         /// <returns>
         /// </returns>
         [HttpPost]
-        public IActionResult PostPost(string PostName, bool Overwrite, [FromBody] string PostFile)
+        public IActionResult PostArticle(bool Overwrite, [FromBody] ArticleModel ArticleModel)
         {
-            var response = postsProvider.PostPost(PostName, Overwrite, PostFile);
+            var response = articlesProvider.PostArticle(Overwrite, ArticleModel);
 
             if (response.Errors != null && response.Errors.Any())
             {
                 return BadRequest();
             }
-            return Created(PostName, response);
+            return Created(ArticleModel.ArticleHeader.Name, response);
         }
 
         /// <summary>
-        /// Deletes selected post
+        /// Deletes selected article
         /// </summary>
-        /// <param name="PostName"></param>
+        /// <param name="ArticleName"></param>
         /// <returns>
         /// </returns>
         [HttpDelete]
-        public IActionResult DeletePost(string PostName)
+        public IActionResult DeleteArticle(string ArticleName)
         {
-            var response = postsProvider.DeletePost(PostName);
+            var response = articlesProvider.DeleteArticle(ArticleName);
 
             if (response.Errors != null && response.Errors.Any())
             {
@@ -79,16 +79,16 @@ namespace Server.Controllers
         }
 
         /// <summary>
-        /// Query list of posts
+        /// Query list of articles
         /// </summary>
         /// <returns>
-        /// List of all created posts
+        /// List of all created articles
         /// </returns>
         [Route("All")]
         [HttpGet]
-        public IActionResult GetAllPosts()
+        public IActionResult GetAllArticles()
         {
-            var response = postsProvider.GetPostsList();
+            var response = articlesProvider.GetArticlesList();
             return Ok(response);
         }
     }

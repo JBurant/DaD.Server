@@ -7,6 +7,6 @@ namespace Server.DTO
         [Required]
         [StringLength(60)]
         [RegularExpression("^[a-zA-Z]+$")]
-        public string PostName { get; set; }
+        public string ArticleName { get; set; }
     }
 }

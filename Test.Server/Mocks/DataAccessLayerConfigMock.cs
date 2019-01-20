@@ -6,7 +6,7 @@ namespace Test.Server.Mocks
     {
         public const int ExtensionFileLength = 4;
         public const string FileExtension = ".txt";
-        public const string PostsDirectory = "TestPosts/";
+        public const string ArticlesDirectory = "TestArticles/";
 
         public int GetExtensionFileLength()
         {
@@ -18,9 +18,9 @@ namespace Test.Server.Mocks
             return FileExtension;
         }
 
-        public string GetPostsDirectory()
+        public string GetArticlesDirectory()
         {
-            return PostsDirectory;
+            return ArticlesDirectory;
         }
     }
 }

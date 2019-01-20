@@ -6,6 +6,6 @@
 
         string GetFileExtension();
 
-        string GetPostsDirectory();
+        string GetArticlesDirectory();
     }
 }

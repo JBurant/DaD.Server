@@ -4,7 +4,7 @@
     {
         public const int ExtensionFileLength = 4;
         public const string FileExtension = ".txt";
-        public const string PostsDirectory = "Posts/";
+        public const string ArticlesDirectory = "Articles/";
 
         public int GetExtensionFileLength()
         {
@@ -16,9 +16,9 @@
             return FileExtension;
         }
 
-        public string GetPostsDirectory()
+        public string GetArticlesDirectory()
         {
-            return PostsDirectory;
+            return ArticlesDirectory;
         }
     }
 }

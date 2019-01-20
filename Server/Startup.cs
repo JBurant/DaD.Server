@@ -7,6 +7,7 @@ using Server.App_Config;
 using Server.DataAccessLayer;
 using Server.Providers;
 using Swashbuckle.AspNetCore.Swagger;
+using System.IO;
 
 namespace Server
 {
@@ -22,9 +23,10 @@ namespace Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddTransient<IPostsProvider, PostsProvider>();
-            services.AddTransient<IPostsAccess, PostsAccess>();
+            services.AddTransient<IArticlesProvider, ArticlesProvider>();
+            services.AddTransient<IArticlesAccess, ArticlesAccess>();
             services.AddTransient<IDataAccessLayerConfig, DataAccessLayerConfig>();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
@@ -45,6 +47,17 @@ namespace Server
             {
                 app.UseHsts();
             }
+
+            var dataConfig = new DataAccessLayerConfig();
+
+            if (!Directory.Exists(dataConfig.GetArticlesDirectory()))
+            {
+                Directory.CreateDirectory(dataConfig.GetArticlesDirectory());
+            }
+
+            app.UseCors(
+                options => options.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin().AllowCredentials()
+            );
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
