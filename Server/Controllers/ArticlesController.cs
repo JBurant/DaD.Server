@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Server.DTO;
 using Server.Providers;
 using System.Linq;
@@ -90,6 +89,14 @@ namespace Server.Controllers
         {
             var response = articlesProvider.GetArticlesList();
             return Ok(response);
+        }
+
+        [HttpOptions]
+        public void Options()
+        {
+            Response.Headers.Add("Access-Control-Allow-Headers", "content-type");
+            Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            Response.Headers.Add("Access-Control-Allow-Methods", "POST");
         }
     }
 }

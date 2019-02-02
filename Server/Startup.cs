@@ -39,6 +39,11 @@ namespace Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseCors(
+                builder => builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod()
+            );
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -55,9 +60,6 @@ namespace Server
                 Directory.CreateDirectory(dataConfig.GetArticlesDirectory());
             }
 
-            app.UseCors(
-                options => options.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin().AllowCredentials()
-            );
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
