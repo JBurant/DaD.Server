@@ -2,9 +2,6 @@
 using Server.DTO;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Security.Principal;
 
 namespace Server.DataAccessLayer
 {
@@ -63,7 +60,7 @@ namespace Server.DataAccessLayer
                 outputFile.Write(articleName);
                 outputFile.Close();
             };
-             return FileExists(articleName);
+            return FileExists(articleName);
         }
 
         public void DeleteArticle(string articleName)
@@ -94,9 +91,9 @@ namespace Server.DataAccessLayer
             DirectoryInfo articlesDirectory = new DirectoryInfo(@ArticlesDirectory);
             FileInfo[] articleFileInfos = articlesDirectory.GetFiles("*" + FileExtension);
 
-            foreach(FileInfo articleFileInfo in articleFileInfos)
+            foreach (FileInfo articleFileInfo in articleFileInfos)
             {
-                articleHeaders.Add(GetArticleHeader(GetFullName(articleFileInfo.Name.Substring(0, articleFileInfo.Name.Length - ExtensionFileLength)))); 
+                articleHeaders.Add(GetArticleHeader(GetFullName(articleFileInfo.Name.Substring(0, articleFileInfo.Name.Length - ExtensionFileLength))));
             }
 
             return articleHeaders;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Server.DTO;
 using Server.Providers;
 using System.Linq;
@@ -44,6 +45,7 @@ namespace Server.Controllers
         /// <param name="ArticleModel"></param>
         /// <returns>
         /// </returns>
+        [Authorize]
         [HttpPost]
         public IActionResult PostArticle(bool Overwrite, [FromBody] ArticleModel ArticleModel)
         {

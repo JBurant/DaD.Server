@@ -1,6 +1,4 @@
-﻿using Server.Common;
-
-namespace Server.DTO
+﻿namespace Common.DTO
 {
     public class Error
     {

@@ -1,4 +1,5 @@
-﻿using Server.DTO;
+﻿using Common.DTO;
+using Server.DTO;
 
 namespace Server.Providers
 {

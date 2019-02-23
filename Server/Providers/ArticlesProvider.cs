@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Server.Common;
+﻿using Common.DTO;
+using Newtonsoft.Json;
 using Server.DataAccessLayer;
 using Server.DTO;
 

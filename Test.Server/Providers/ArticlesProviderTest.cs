@@ -1,6 +1,6 @@
-﻿using Moq;
+﻿using Common.DTO;
+using Moq;
 using Newtonsoft.Json;
-using Server.Common;
 using Server.DataAccessLayer;
 using Server.DTO;
 using Server.Providers;
@@ -125,7 +125,7 @@ namespace Test.Server.Providers
             var articleMock = new ArticleModel() { ArticleHeader = new ArticleHeader() { Name = "TestFileName" }, ArticleContent = "TestTextMock" };
             var ExpectedError = new Error(ErrorCode.IE0001);
             articlesAccessMock.Setup(x => x.FileExists(It.IsAny<string>())).Returns(fileExists);
-            articlesAccessMock.Setup(x => x.WriteArticle(It.IsAny<string>(), It.IsAny<string>(),It.IsAny<string>()));
+            articlesAccessMock.Setup(x => x.WriteArticle(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
 
             //Act
             var messageResponse = articlesProvider.PostArticle(overwrite, articleMock);

@@ -118,7 +118,7 @@ namespace Test.Server.DataAccessLayer
             Assert.Equal(articleList.Count, expectedArticles.Count);
 
             //Assert
-            for (int i=0; i < articleList.Count; i++)
+            for (int i = 0; i < articleList.Count; i++)
             {
                 Assert.Equal(articleList[i].Name, expectedArticles[i].Name);
                 Assert.Equal(articleList[i].Author, expectedArticles[i].Author);
