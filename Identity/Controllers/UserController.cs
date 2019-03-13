@@ -21,7 +21,7 @@ namespace Identity.Controllers
         /// Register user
         /// </summary>
         /// <returns>
-        /// 
+        ///
         /// </returns>
         [Route("register")]
         [HttpPost]
@@ -48,7 +48,11 @@ namespace Identity.Controllers
         {
             if (!ModelState.IsValid) { return BadRequest(); }
             var response = await userProvider.LoginUserAsync(request);
-            if (!ModelState.IsValid) { BadRequest(response); }
+
+            if (response.Errors != null && response.Errors.Any())
+            {
+                return BadRequest(response);
+            }
 
             return Created(request.Username, response);
         }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Server.DTO;
 using Server.Providers;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Server.Controllers
 {
@@ -11,10 +12,12 @@ namespace Server.Controllers
     public class ArticlesController : Controller
     {
         private IArticlesProvider articlesProvider;
+        private IAuthorizationService authorizationService;
 
-        public ArticlesController(IArticlesProvider articlesProvider)
+        public ArticlesController(IAuthorizationService authorizationService, IArticlesProvider articlesProvider)
         {
             this.articlesProvider = articlesProvider;
+            this.authorizationService = authorizationService;
         }
 
         /// <summary>
@@ -24,17 +27,31 @@ namespace Server.Controllers
         /// <returns>
         /// </returns>
         [HttpGet]
-        public IActionResult GetArticle(string ArticleName)
+        [Authorize]
+        public async Task<IActionResult> GetArticleAsync(string ArticleName)
         {
-            var response = articlesProvider.GetArticle(ArticleName);
+            var response = await articlesProvider.GetArticleAsync(ArticleName);
 
-            if (response.Errors != null && response.Errors.Any())
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, response.Message.ArticleHeader.Author, "AuthorAuthorization");
+
+            if (authorizationResult.Succeeded)
             {
-                return BadRequest(response);
+                if (response.Errors != null && response.Errors.Any())
+                {
+                    return BadRequest(response);
+                }
+                else
+                {
+                    return Ok(response);
+                }
+            }
+            else if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
             }
             else
             {
-                return Ok(response);
+                return new ChallengeResult();
             }
         }
 
@@ -42,20 +59,20 @@ namespace Server.Controllers
         /// Posts an article
         /// </summary>
         /// <param name="Overwrite"></param>
-        /// <param name="ArticleModel"></param>
+        /// <param name="ArticleDTO"></param>
         /// <returns>
         /// </returns>
-        [Authorize]
         [HttpPost]
-        public IActionResult PostArticle(bool Overwrite, [FromBody] ArticleModel ArticleModel)
+        [Authorize]
+        public async Task<IActionResult> PostArticleAsync(bool Overwrite, [FromBody] ArticleDTO ArticleDTO)
         {
-            var response = articlesProvider.PostArticle(Overwrite, ArticleModel);
+            var response = await articlesProvider.PostArticleAsync(Overwrite, ArticleDTO);
 
             if (response.Errors != null && response.Errors.Any())
             {
                 return BadRequest();
             }
-            return Created(ArticleModel.ArticleHeader.Name, response);
+            return Created(ArticleDTO.ArticleHeader.Name, response);
         }
 
         /// <summary>
@@ -65,9 +82,10 @@ namespace Server.Controllers
         /// <returns>
         /// </returns>
         [HttpDelete]
-        public IActionResult DeleteArticle(string ArticleName)
+        [Authorize]
+        public async Task<IActionResult> DeleteArticle(string ArticleName)
         {
-            var response = articlesProvider.DeleteArticle(ArticleName);
+            var response = await articlesProvider.DeleteArticleAsync(ArticleName);
 
             if (response.Errors != null && response.Errors.Any())
             {
@@ -87,9 +105,9 @@ namespace Server.Controllers
         /// </returns>
         [Route("All")]
         [HttpGet]
-        public IActionResult GetAllArticles()
+        public async Task<IActionResult> GetAllArticles()
         {
-            var response = articlesProvider.GetArticlesList();
+            var response = await articlesProvider.GetArticlesListAsync();
             return Ok(response);
         }
 

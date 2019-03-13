@@ -1,72 +1,91 @@
 ﻿using Common.DTO;
-using Newtonsoft.Json;
+using Common.Services;
 using Server.DataAccessLayer;
 using Server.DTO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Server.Providers
 {
     public class ArticlesProvider : IArticlesProvider
     {
         private IArticlesAccess articlesAccess;
+        private IErrorListProvider errorListProvider;
 
-        public ArticlesProvider(IArticlesAccess articlesAccess)
+        public ArticlesProvider(IArticlesAccess articlesAccess, IErrorListProvider errorListProvider)
         {
             this.articlesAccess = articlesAccess;
+            this.errorListProvider = errorListProvider;
         }
 
-        public MessageResponse PostArticle(bool overwrite, ArticleModel articleModel)
+        public async Task<MessageResponse<string>> PostArticleAsync(bool overwrite, ArticleDTO articleDTO)
         {
-            var response = new MessageResponse();
+            var response = new MessageResponse<string>();
 
-            if (!overwrite && articlesAccess.FileExists(articleModel.ArticleHeader.Name))
+            if (await articlesAccess.GetArticleAsync(articleDTO.ArticleHeader.Name) != null)
             {
-                response.Errors.Add(new Error(ErrorCode.IE0001));
+                if (!overwrite)
+                {
+                    response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0001));
+                    return response;
+                }
+                if (!await articlesAccess.DeleteArticleAsync(articleDTO.ArticleHeader.Name))
+                {
+                    response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0010));
+                    return response;
+                }
+            }
+
+            if (!await articlesAccess.WriteArticleAsync(articleDTO.ArticleHeader.Name, articleDTO.ArticleHeader.Author, articleDTO.ArticleContent))
+            {
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0011));
                 return response;
             }
 
-            articlesAccess.WriteArticle(articleModel.ArticleHeader.Name, articleModel.ArticleHeader.Author, articleModel.ArticleContent);
-            response.Message = articleModel.ArticleHeader.Name;
-
+            response.Message = articleDTO.ArticleHeader.Name;
             return response;
         }
 
-        public MessageResponse DeleteArticle(string articleName)
+        public async Task<MessageResponse<string>> DeleteArticleAsync(string articleName)
         {
-            var response = new MessageResponse();
+            var response = new MessageResponse<string>();
 
-            if (articlesAccess.FileExists(articleName))
+            var success = await articlesAccess.DeleteArticleAsync(articleName);
+
+            if (success)
             {
-                articlesAccess.DeleteArticle(articleName);
                 response.Message = articleName;
             }
             else
             {
-                response.Errors.Add(new Error(ErrorCode.IE0002));
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0002));
             }
 
             return response;
         }
 
-        public MessageResponse GetArticle(string articleName)
+        public async Task<MessageResponse<ArticleDTO>> GetArticleAsync(string articleName)
         {
-            var response = new MessageResponse();
+            var response = new MessageResponse<ArticleDTO>();
 
-            if (articlesAccess.FileExists(articleName))
+            var article = await articlesAccess.GetArticleAsync(articleName);
+
+            if (article == null)
             {
-                var articleModel = articlesAccess.GetArticle(articleName);
-                response.Message = JsonConvert.SerializeObject(articleModel);
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0002));
             }
             else
             {
-                response.Errors.Add(new Error(ErrorCode.IE0002));
+                response.Message = article;
             }
 
             return response;
         }
 
-        public MessageResponse GetArticlesList()
+        public async Task<MessageResponse<List<ArticleHeader>>> GetArticlesListAsync()
         {
-            return new MessageResponse() { Message = JsonConvert.SerializeObject(articlesAccess.GetArticleList()) };
+            return new MessageResponse<List<ArticleHeader>>() { Message = await articlesAccess.GetArticleListAsync() };
         }
     }
 }

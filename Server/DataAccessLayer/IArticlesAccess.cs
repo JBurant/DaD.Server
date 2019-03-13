@@ -1,18 +1,19 @@
 ﻿using Server.DTO;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Server.DataAccessLayer
 {
     public interface IArticlesAccess
     {
-        bool FileExists(string articleName);
+        Task<ArticleHeader> GetArticleHeaderAsync(string articleName);
 
-        bool WriteArticle(string articleName, string articleAuthor, string articleFile);
+        Task<bool> WriteArticleAsync(string articleName, string articleAuthor, string articleFile);
 
-        void DeleteArticle(string articleName);
+        Task<bool> DeleteArticleAsync(string articleName);
 
-        ArticleModel GetArticle(string articleName);
+        Task<ArticleDTO> GetArticleAsync(string articleName);
 
-        List<ArticleHeader> GetArticleList();
+        Task<List<ArticleHeader>> GetArticleListAsync();
     }
 }

@@ -1,7 +1,9 @@
-﻿using Common.DTO;
+﻿using AutoMapper;
+using Common.DTO;
 using Common.Services;
 using Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -10,12 +12,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Server.App_Config;
+using Server.ConfigurationDTO;
+using Server.Contexts;
 using Server.DTO;
+using Server.MapperProfiles;
+using Server.Validation.Handlers;
+using Server.Validation.Requirements;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 
 namespace Server
@@ -32,10 +37,19 @@ namespace Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // var connection = @"Server=(localdb)\mssqllocaldb;Database=EFGetStarted.AspNetCore.NewDb;Trusted_Connection=True;ConnectRetryCount=0";
-            var connection = @"Server=lonelyfort.database.windows.net;Database=backend;uid=KeeperOfTheStronghold;password=f1*rds65/4vx$xhcv;Trusted_Connection=False;Encrypt=True;ConnectRetryCount=0";
-            services.AddDbContext<ApplicationDbContext>
-                (options => options.UseSqlServer(connection));
+            Mapper.Initialize(cfg =>
+            {
+                cfg.AddProfile<ArticleArticleHeaderProfile>();
+                cfg.AddProfile<ArticleArticleDtoProfile>();
+            });
+
+            services.AddDbContext<AuthorizationDbContext>
+                (options => options.UseSqlServer(Configuration.GetConnectionString("Database"), optionsBuilder =>
+                    optionsBuilder.MigrationsAssembly("Server")));
+
+            services.AddDbContext<ArticleDbContext>
+                (options => options.UseSqlServer(Configuration.GetConnectionString("Database"), optionsBuilder =>
+                    optionsBuilder.MigrationsAssembly("Server")));
 
             var identityBuilder = services.AddIdentityCore<IdentityUser>(o =>
             {
@@ -46,19 +60,15 @@ namespace Server
                 o.Password.RequiredLength = 6;
             });
 
-            identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>();
+            identityBuilder.AddEntityFrameworkStores<AuthorizationDbContext>();
 
             // Register the ConfigurationBuilder instance of AuthSettings
             var authSettings = Configuration.GetSection(nameof(AuthSettings));
             services.Configure<AuthSettings>(authSettings);
 
             var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(authSettings[nameof(AuthSettings.SecretKey)]));
-
-            // jwt wire up
-            // Get options from app settings
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
 
-            // Configure JwtIssuerOptions
             services.Configure<JwtIssuerOptions>(options =>
             {
                 options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
@@ -94,7 +104,14 @@ namespace Server
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("ApiUser", policy => policy.RequireClaim("rol", "api_access"));
+                options.AddPolicy("AuthorAuthorization", policy =>
+                    policy.Requirements.Add(new AuthorAuthorizationRequirement()));
             });
+
+            services.AddSingleton<IAuthorizationHandler, AuthorAuthorizationHandler>();
+            services.AddTransient<IArticleContextFactory>(s => new ArticleContextFactory(Configuration.GetConnectionString("Database")));
+
+            services.Configure<ConnectionStrings>(Configuration.GetSection("ConnectionStrings"));
 
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -106,7 +123,6 @@ namespace Server
                 inj.RegisterServices(services);
             }
 
-            // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
@@ -129,21 +145,10 @@ namespace Server
                 app.UseHsts();
             }
 
-            var dataConfig = new DataAccessLayerConfig();
-
-            if (!Directory.Exists(dataConfig.GetArticlesDirectory()))
-            {
-                Directory.CreateDirectory(dataConfig.GetArticlesDirectory());
-            }
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-            // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
@@ -155,10 +160,12 @@ namespace Server
 
         private List<IDependencyInjector> GetInjectors()
         {
-            var response = new List<IDependencyInjector>();
-
-            response.Add(new Identity.DependencyInjection.DependencyInjector());
-            response.Add(new Server.DependencyInjection.DependencyInjector());
+            var response = new List<IDependencyInjector>
+            {
+                new Common.DependencyInjection.DependencyInjector(),
+                new Identity.DependencyInjection.DependencyInjector(),
+                new Server.DependencyInjection.DependencyInjector()
+            };
 
             return response;
         }

@@ -12,5 +12,7 @@
         IE0007, // Invalid form of username
         IE0008, // Invalid form of password
         IE0009, // Invalid form of email
+        IE0010, // Unable to delete article
+        IE0011, // Unable to write article
     };
 }

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Identity
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public class AuthorizationDbContext : IdentityDbContext<IdentityUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public AuthorizationDbContext(DbContextOptions<AuthorizationDbContext> options)
         : base(options)
         {
         }

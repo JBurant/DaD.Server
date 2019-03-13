@@ -7,7 +7,7 @@ namespace Identity.DataAccessLayer
     {
         private readonly UserManager<IdentityUser> userManager;
 
-        public UserRepository(UserManager<IdentityUser> userManager, ApplicationDbContext appDbContext)
+        public UserRepository(UserManager<IdentityUser> userManager, AuthorizationDbContext appDbContext)
         {
             this.userManager = userManager;
         }

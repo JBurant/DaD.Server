@@ -2,6 +2,9 @@
 {
     public class Error
     {
+        public Error()
+        { }
+
         public Error(ErrorCode errorCode)
         {
             ErrorCode = errorCode;

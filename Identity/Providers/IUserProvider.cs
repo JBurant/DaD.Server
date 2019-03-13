@@ -6,8 +6,8 @@ namespace Identity.Providers
 {
     public interface IUserProvider
     {
-        Task<MessageResponse> RegisterUserAsync(RegisterUserRequest message);
+        Task<MessageResponse<string>> RegisterUserAsync(RegisterUserRequest message);
 
-        Task<MessageResponse> LoginUserAsync(LoginUserRequest message);
+        Task<MessageResponse<string>> LoginUserAsync(LoginUserRequest message);
     }
 }

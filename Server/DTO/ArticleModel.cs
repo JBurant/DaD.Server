@@ -3,7 +3,7 @@
 namespace Server.DTO
 {
     [DataContract]
-    public class ArticleModel
+    public class ArticleDTO
     {
         [DataMember]
         public ArticleHeader ArticleHeader { get; set; }

@@ -2,16 +2,15 @@
 
 namespace Common.DTO
 {
-    public class MessageResponse
+    public class MessageResponse<T>
     {
         public MessageResponse()
         {
-            Message = "";
             Warnings = new List<string>();
             Errors = new List<Error>();
         }
 
-        public string Message { get; set; }
+        public T Message { get; set; }
 
         public List<string> Warnings { get; set; }
 

@@ -1,16 +1,18 @@
 ﻿using Common.DTO;
 using Server.DTO;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Server.Providers
 {
     public interface IArticlesProvider
     {
-        MessageResponse PostArticle(bool overwrite, ArticleModel articleFile);
+        Task<MessageResponse<string>> PostArticleAsync(bool overwrite, ArticleDTO articleDto);
 
-        MessageResponse DeleteArticle(string ArticleName);
+        Task<MessageResponse<string>> DeleteArticleAsync(string articleName);
 
-        MessageResponse GetArticle(string ArticleName);
+        Task<MessageResponse<ArticleDTO>> GetArticleAsync(string articleName);
 
-        MessageResponse GetArticlesList();
+        Task<MessageResponse<List<ArticleHeader>>> GetArticlesListAsync();
     }
 }

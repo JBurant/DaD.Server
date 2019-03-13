@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Identity.Validators
+﻿namespace Identity.Validators
 {
     public interface IUserValidator
     {

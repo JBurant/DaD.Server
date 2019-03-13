@@ -1,4 +1,5 @@
 ﻿using Common.DTO;
+using Common.Services;
 using Identity.DataAccessLayer;
 using Identity.DTO;
 using Identity.Services;
@@ -13,34 +14,36 @@ namespace Identity.Providers
         private readonly IJwtTokenFactory jwtFactory;
         private readonly ITokenFactory tokenFactory;
         private readonly IUserValidator userValidator;
+        private readonly IErrorListProvider errorListProvider;
 
-        public UserProvider(IUserRepository userRepository, IJwtTokenFactory jwtFactory, ITokenFactory tokenFactory, IUserValidator userValidator)
+        public UserProvider(IUserRepository userRepository, IJwtTokenFactory jwtFactory, ITokenFactory tokenFactory, IUserValidator userValidator, IErrorListProvider errorListProvider)
         {
             this.userRepository = userRepository;
             this.jwtFactory = jwtFactory;
             this.tokenFactory = tokenFactory;
             this.userValidator = userValidator;
+            this.errorListProvider = errorListProvider;
         }
 
-        public async Task<MessageResponse> RegisterUserAsync(RegisterUserRequest message)
+        public async Task<MessageResponse<string>> RegisterUserAsync(RegisterUserRequest message)
         {
-            var response = new MessageResponse();
+            var response = new MessageResponse<string>();
 
             if (string.IsNullOrEmpty(message.Username) || !userValidator.ValidateUsername(message.Username))
             {
-                response.Errors.Add(new Error(ErrorCode.IE0007));
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0007));
                 return response;
             }
 
             if (string.IsNullOrEmpty(message.Password))
             {
-                response.Errors.Add(new Error(ErrorCode.IE0008));
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0008));
                 return response;
             }
 
             if (string.IsNullOrEmpty(message.Email) || !userValidator.ValidateUsername(message.Username))
             {
-                response.Errors.Add(new Error(ErrorCode.IE0009));
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0009));
                 return response;
             }
 
@@ -48,7 +51,7 @@ namespace Identity.Providers
 
             if (repositoryResponse != message.Username)
             {
-                response.Errors.Add(new Error(ErrorCode.IE0003));
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0003));
             }
             else
             {
@@ -58,26 +61,26 @@ namespace Identity.Providers
             return response;
         }
 
-        public async Task<MessageResponse> LoginUserAsync(LoginUserRequest message)
+        public async Task<MessageResponse<string>> LoginUserAsync(LoginUserRequest message)
         {
-            var response = new MessageResponse();
+            var response = new MessageResponse<string>();
 
             if (string.IsNullOrEmpty(message.Username) || !userValidator.ValidateUsername(message.Username))
             {
-                response.Errors.Add(new Error(ErrorCode.IE0007));
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0007));
                 return response;
             }
 
             if (string.IsNullOrEmpty(message.Password))
             {
-                response.Errors.Add(new Error(ErrorCode.IE0008));
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0008));
                 return response;
             }
 
             var user = await userRepository.FindByName(message.Username);
             if (user == null)
             {
-                response.Errors.Add(new Error(ErrorCode.IE0005));
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0005));
                 return response;
             }
 
@@ -87,7 +90,7 @@ namespace Identity.Providers
             }
             else
             {
-                response.Errors.Add(new Error(ErrorCode.IE0004));
+                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0004));
             }
 
             return response;
