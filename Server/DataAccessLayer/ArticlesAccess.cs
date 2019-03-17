@@ -25,7 +25,7 @@ namespace Server.DataAccessLayer
 
             using (var context = articleContextFactory.CreateArticleContext())
             {
-                var article = await context.Articles.FindAsync(articleName);
+                var article = await context.Articles.SingleOrDefaultAsync(x => x.Name == articleName);
 
                 if (article != null)
                 {
@@ -57,7 +57,7 @@ namespace Server.DataAccessLayer
         {
             using (var context = articleContextFactory.CreateArticleContext())
             {
-                var article = await context.Articles.FindAsync(articleName);
+                var article = await context.Articles.SingleOrDefaultAsync(x => x.Name == articleName);
 
                 if (article != null)
                 {
@@ -76,7 +76,7 @@ namespace Server.DataAccessLayer
         {
             using (var context = articleContextFactory.CreateArticleContext())
             {
-                var article = await context.Articles.FindAsync(articleName);
+                var article = await context.Articles.SingleOrDefaultAsync(x => x.Name == articleName);
 
                 if (article != null)
                 {

@@ -78,6 +78,7 @@ namespace Server
 
             var tokenValidationParameters = new TokenValidationParameters
             {
+                NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
                 ValidateIssuer = true,
                 ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
                 ValidateAudience = true,

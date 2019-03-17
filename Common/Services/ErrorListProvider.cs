@@ -13,7 +13,7 @@ namespace Common.Services
             {
                 new Error() { ErrorCode = ErrorCode.IE0000, ErrorMessage = "Invalid file format" },
                 new Error() { ErrorCode = ErrorCode.IE0001, ErrorMessage = "File already exists" },
-                new Error() { ErrorCode = ErrorCode.IE0002, ErrorMessage = "File doe not exist" },
+                new Error() { ErrorCode = ErrorCode.IE0002, ErrorMessage = "File does not exist" },
                 new Error() { ErrorCode = ErrorCode.IE0003, ErrorMessage = "User creation failed" },
                 new Error() { ErrorCode = ErrorCode.IE0004, ErrorMessage = "Login password incorrect" },
                 new Error() { ErrorCode = ErrorCode.IE0005, ErrorMessage = "User does not exist" },
