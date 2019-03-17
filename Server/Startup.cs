@@ -45,7 +45,7 @@ namespace Server
 
             services.AddDbContext<AuthorizationDbContext>
                 (options => options.UseSqlServer(Configuration.GetConnectionString("Database"), optionsBuilder =>
-                    optionsBuilder.MigrationsAssembly("Server")));
+                    optionsBuilder.MigrationsAssembly("Identity")));
 
             services.AddDbContext<ArticleDbContext>
                 (options => options.UseSqlServer(Configuration.GetConnectionString("Database"), optionsBuilder =>
