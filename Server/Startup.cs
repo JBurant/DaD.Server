@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Common.DTO;
+﻿using Common.DTO;
 using Common.Services;
 using Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,8 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Server.ConfigurationDTO;
 using Server.Contexts;
+using Server.DataAccessLayer;
 using Server.DTO;
-using Server.MapperProfiles;
 using Server.Validation.Handlers;
 using Server.Validation.Requirements;
 using Swashbuckle.AspNetCore.Swagger;
@@ -37,12 +36,6 @@ namespace Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            Mapper.Initialize(cfg =>
-            {
-                cfg.AddProfile<ArticleArticleHeaderProfile>();
-                cfg.AddProfile<ArticleArticleDtoProfile>();
-            });
-
             services.AddDbContext<AuthorizationDbContext>
                 (options => options.UseSqlServer(Configuration.GetConnectionString("Database"), optionsBuilder =>
                     optionsBuilder.MigrationsAssembly("Identity")));
@@ -106,13 +99,13 @@ namespace Server
             {
                 options.AddPolicy("ApiUser", policy => policy.RequireClaim("rol", "api_access"));
                 options.AddPolicy("AuthorAuthorization", policy =>
-                    policy.Requirements.Add(new AuthorAuthorizationRequirement()));
+                policy.Requirements.Add(new AuthorAuthorizationRequirement()));
             });
 
-            services.AddSingleton<IAuthorizationHandler, AuthorAuthorizationHandler>();
-            services.AddTransient<IArticleContextFactory>(s => new ArticleContextFactory(Configuration.GetConnectionString("Database")));
+            services.Configure<ArticleDatabaseSettings>(Configuration.GetSection("ArticleDatabaseSettings"));
 
-            services.Configure<ConnectionStrings>(Configuration.GetSection("ConnectionStrings"));
+            services.AddSingleton<IAuthorizationHandler, AuthorAuthorizationHandler>();
+            services.AddTransient<IArticlesAccess, ArticlesAccessMongoDb>();
 
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

@@ -1,11 +1,9 @@
-﻿using AutoMapper;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Server.Contexts;
 using Server.DataAccessLayer;
 using Server.DTO;
-using Server.MapperProfiles;
 using Server.Models;
 using System;
 using System.Collections.Generic;
@@ -30,13 +28,6 @@ namespace Test.Server.DataAccessLayer
         {
             TimeCreated = new DateTime(2019, 1, 1);
             TimeModified = new DateTime(2019, 2, 2);
-
-            Mapper.Reset();
-            Mapper.Initialize(cfg =>
-            {
-                cfg.AddProfile<ArticleArticleHeaderProfile>();
-                cfg.AddProfile<ArticleArticleDtoProfile>();
-            });
 
             articleContextFactoryMock = new Mock<IArticleContextFactory>();
 
@@ -64,49 +55,6 @@ namespace Test.Server.DataAccessLayer
             articleContextFactoryMock.Verify(x => x.CreateArticleContext(), Times.Once());
         }
 
-        [Theory]
-        [InlineData("TestTest", "TestAuthor")]
-        public void GetArticleHeaderAsync_ArticleExists_ShouldReturnExpectedHeader(string articleName, string articleAuthor)
-        {
-            //Arrange
-            articleContextMock.Setup(x => x.Articles.FindAsync(It.IsAny<string>()))
-                .ReturnsAsync(new Article()
-                {
-                    Name = articleName,
-                    Author = articleAuthor,
-                    TimeCreated = TimeCreated,
-                    TimeModified = TimeModified
-                });
-
-            var expectedResult = new ArticleHeader()
-            {
-                Name = articleName,
-                Author = articleAuthor,
-                TimeCreated = TimeCreated,
-                TimeModified = TimeModified
-            };
-
-            //Act
-            var result = articlesAccess.GetArticleHeaderAsync(articleName).Result;
-
-            //Assert
-            result.Should().BeEquivalentTo(expectedResult);
-        }
-
-        [Theory]
-        [InlineData("TestTest")]
-        public void GetArticleHeaderAsync_ArticleDoesNotExist_ShouldReturnNull(string articleName)
-        {
-            //Arrange
-            articleContextMock.Setup(x => x.Articles.FindAsync(It.IsAny<string>())).ReturnsAsync((Article)null);
-
-            //Act
-            var result = articlesAccess.GetArticleHeaderAsync(articleName).Result;
-
-            //Assert
-            result.Should().BeNull();
-        }
-
         [Fact]
         public void WriteArticleAsync_AnyInput_ShouldCreateNewContext()
         {
@@ -130,32 +78,6 @@ namespace Test.Server.DataAccessLayer
 
             //Assert
             articleToBeAdded.Should().BeEquivalentTo(expectedResult);
-        }
-
-        [Theory]
-        [InlineData("TestTest", "TestAuthor", "TestTextTestText")]
-        public void WriteArticleAsync_AnyInput_ShouldReturnTrue(string articleName, string articleAuthor, string articleFile)
-        {
-            //Arrange
-            //Act
-            var result = articlesAccess.WriteArticleAsync(articleName, articleAuthor, articleFile).Result;
-
-            //Assert
-            Assert.True(result);
-        }
-
-        [Theory]
-        [InlineData("TestTest", "TestAuthor", "TestTextTestText")]
-        public void WriteArticleAsync_NotSaved_ShouldReturnFalse(string articleName, string articleAuthor, string articleFile)
-        {
-            //Arrange
-            articleContextMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(0);
-
-            //Act
-            var result = articlesAccess.WriteArticleAsync(articleName, articleAuthor, articleFile).Result;
-
-            //Assert
-            Assert.False(result);
         }
 
         [Fact]

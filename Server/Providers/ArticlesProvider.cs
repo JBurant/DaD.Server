@@ -2,6 +2,7 @@
 using Common.Services;
 using Server.DataAccessLayer;
 using Server.DTO;
+using Server.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,12 +38,8 @@ namespace Server.Providers
                 }
             }
 
-            if (!await articlesAccess.WriteArticleAsync(articleDTO.ArticleHeader.Name, articleDTO.ArticleHeader.Author, articleDTO.ArticleContent))
-            {
-                response.Errors.Add(errorListProvider.GetError(ErrorCode.IE0011));
-                return response;
-            }
-
+            await articlesAccess.WriteArticleAsync(articleDTO.ArticleHeader.Name, articleDTO.ArticleHeader.Author, articleDTO.ArticleContent);
+     
             response.Message = articleDTO.ArticleHeader.Name;
             return response;
         }
@@ -77,7 +74,13 @@ namespace Server.Providers
             }
             else
             {
-                response.Message = article;
+                response.Message = new ArticleDTO() {
+                ArticleHeader = new ArticleHeader() {
+                    Name = article.Name,
+                    Author = article.Author,
+                    TimeCreated =article.TimeCreated,
+                    TimeModified =article.TimeModified,
+                }, ArticleContent = article.ArticleContent};
             }
 
             return response;
@@ -85,7 +88,13 @@ namespace Server.Providers
 
         public async Task<MessageResponse<List<ArticleHeader>>> GetArticlesListAsync()
         {
-            return new MessageResponse<List<ArticleHeader>>() { Message = await articlesAccess.GetArticleListAsync() };
+            var articlesList = await articlesAccess.GetArticleListAsync();
+
+            return new MessageResponse<List<ArticleHeader>>() { Message =  articlesList.Select(x => new ArticleHeader() {
+                Name = x.Name,
+                Author = x.Author,
+                TimeCreated = x.TimeCreated,
+                TimeModified = x.TimeModified}).ToList() };
         }
     }
 }

@@ -10,7 +10,6 @@ namespace Server.DependencyInjection
         public void RegisterServices(IServiceCollection services)
         {
             services.AddTransient<IArticlesProvider, ArticlesProvider>();
-            services.AddTransient<IArticlesAccess, ArticlesAccess>();
         }
     }
 }
